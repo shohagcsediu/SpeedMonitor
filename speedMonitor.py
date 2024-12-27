@@ -9,14 +9,16 @@ class NetSpeedMonitor(tk.Tk):
         super().__init__()
         self.title("Internet Speed Monitor")
         self.geometry("200x100")
-        self.resizable(False, False)
         self.configure(bg="black")
         
+        # Make the window resizable
+        self.resizable(True, True)
+
         # Labels to display download and upload speeds
         self.download_label = tk.Label(self, text="Download: 0 Mbps", font=("Arial", 12), fg="lime", bg="black")
-        self.download_label.pack(pady=10)
+        self.download_label.pack(pady=10, expand=True)
         self.upload_label = tk.Label(self, text="Upload: 0 Mbps", font=("Arial", 12), fg="cyan", bg="black")
-        self.upload_label.pack(pady=10)
+        self.upload_label.pack(pady=10, expand=True)
         
         self.running = True
         self.update_speed()
