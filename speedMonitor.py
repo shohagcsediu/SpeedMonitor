@@ -8,34 +8,54 @@ class NetSpeedMonitor(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Internet Speed Monitor")
-        self.geometry("200x100")
+        self.geometry("250x120")
         self.configure(bg="black")
         
-        # Make the window resizable
+        # Allow resizing
         self.resizable(True, True)
 
-        # Labels to display download and upload speeds
-        self.download_label = tk.Label(self, text="Download: 0 Mbps", font=("Arial", 12), fg="lime", bg="black")
-        self.download_label.pack(pady=10, expand=True)
-        self.upload_label = tk.Label(self, text="Upload: 0 Mbps", font=("Arial", 12), fg="cyan", bg="black")
-        self.upload_label.pack(pady=10, expand=True)
-        
+        # Create a container for rounded-corner effects
+        self.container = tk.Frame(self, bg="black")
+        self.container.pack(expand=True, fill="both", padx=10, pady=10)
+
+        # Labels for download and upload speeds
+        self.download_label = tk.Label(self.container, text="Download: 0 Mbps", font=("Arial", 14), fg="lime", bg="black")
+        self.download_label.pack(pady=5, fill="x", expand=True)
+        self.upload_label = tk.Label(self.container, text="Upload: 0 Mbps", font=("Arial", 14), fg="cyan", bg="black")
+        self.upload_label.pack(pady=5, fill="x", expand=True)
+
+        # Enable dragging
+        self.bind("<Button-1>", self.start_drag)
+        self.bind("<B1-Motion>", self.do_drag)
+
         self.running = True
         self.update_speed()
 
+    # Start dragging
+    def start_drag(self, event):
+        self._drag_x = event.x
+        self._drag_y = event.y
+
+    # Perform dragging
+    def do_drag(self, event):
+        x = self.winfo_x() + (event.x - self._drag_x)
+        y = self.winfo_y() + (event.y - self._drag_y)
+        self.geometry(f"+{x}+{y}")
+
+    # Update internet speed
     def update_speed(self):
         def monitor():
             old_net = psutil.net_io_counters()
             while self.running:
                 sleep(1)
                 new_net = psutil.net_io_counters()
-                
-                download_speed = (new_net.bytes_recv - old_net.bytes_recv) / (1024 * 1024) * 8  # Convert to Mbps
-                upload_speed = (new_net.bytes_sent - old_net.bytes_sent) / (1024 * 1024) * 8  # Convert to Mbps
-                
+
+                download_speed = (new_net.bytes_recv - old_net.bytes_recv) / (1024 * 1024) * 8  # Mbps
+                upload_speed = (new_net.bytes_sent - old_net.bytes_sent) / (1024 * 1024) * 8  # Mbps
+
                 self.download_label.config(text=f"Download: {download_speed:.2f} Mbps")
                 self.upload_label.config(text=f"Upload: {upload_speed:.2f} Mbps")
-                
+
                 old_net = new_net
 
         Thread(target=monitor, daemon=True).start()
