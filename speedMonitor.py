@@ -24,11 +24,16 @@ class NetSpeedMonitor(tk.Tk):
         self.upload_label = tk.Label(self.container, text="Upload: 0 Mbps", font=("Arial", 14), fg="cyan", bg="black")
         self.upload_label.pack(pady=5, fill="x", expand=True)
 
+        # Button to toggle pinning window on top
+        self.pin_button = tk.Button(self.container, text="Pin on Top", command=self.toggle_pin)
+        self.pin_button.pack(pady=5)
+
         # Enable dragging
         self.bind("<Button-1>", self.start_drag)
         self.bind("<B1-Motion>", self.do_drag)
 
         self.running = True
+        self.is_pinned = False  # Flag to track if the window is pinned
         self.update_speed()
 
     # Start dragging
@@ -59,6 +64,17 @@ class NetSpeedMonitor(tk.Tk):
                 old_net = new_net
 
         Thread(target=monitor, daemon=True).start()
+
+    # Toggle pinning window on top
+    def toggle_pin(self):
+        if self.is_pinned:
+            self.attributes("-topmost", 0)  # Remove topmost attribute
+            self.is_pinned = False
+            self.pin_button.config(text="Pin on Top")
+        else:
+            self.attributes("-topmost", 1)  # Set topmost attribute
+            self.is_pinned = True
+            self.pin_button.config(text="Unpin from Top")
 
 
 if __name__ == "__main__":
